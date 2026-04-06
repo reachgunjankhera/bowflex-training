@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import HomeScreen from './screens/HomeScreen'
 import WorkoutScreen from './screens/WorkoutScreen'
+import CalendarScreen from './screens/CalendarScreen'
 import { useWorkoutLog } from './hooks/useWorkoutLog'
 
 export default function App() {
   const [view, setView] = useState('home')
   const [activeDay, setActiveDay] = useState(null)
 
-  const { logSet, markWorkoutComplete, isWorkoutComplete, getLastWeight } = useWorkoutLog()
+  const { logSet, markWorkoutComplete, isWorkoutComplete, getLastWeight, log } = useWorkoutLog()
 
   function handleStartDay(dayData) {
     setActiveDay(dayData)
@@ -47,6 +48,7 @@ export default function App() {
         <HomeScreen
           onStartDay={handleStartDay}
           isWorkoutComplete={isWorkoutComplete}
+          onOpenCalendar={() => setView('calendar')}
         />
       )}
       {view === 'workout' && activeDay && (
@@ -56,6 +58,13 @@ export default function App() {
           onComplete={handleWorkoutComplete}
           logSet={logSet}
           getLastWeight={getLastWeight}
+        />
+      )}
+      {view === 'calendar' && (
+        <CalendarScreen
+          isWorkoutComplete={isWorkoutComplete}
+          log={log}
+          onBack={() => setView('home')}
         />
       )}
     </div>

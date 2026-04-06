@@ -2,7 +2,7 @@ import { ALL_DAYS, CHALLENGE } from '../data/workouts'
 
 const WEEK_COLORS = ['bg-red-600', 'bg-orange-500', 'bg-amber-500', 'bg-green-600', 'bg-blue-600', 'bg-purple-600']
 
-export default function HomeScreen({ onStartDay, isWorkoutComplete }) {
+export default function HomeScreen({ onStartDay, isWorkoutComplete, onOpenCalendar }) {
   const totalCompleted = ALL_DAYS.filter(d => isWorkoutComplete(d.id)).length
   const nextDay = ALL_DAYS.find(d => !isWorkoutComplete(d.id))
 
@@ -11,10 +11,17 @@ export default function HomeScreen({ onStartDay, isWorkoutComplete }) {
       <div className="bg-gray-900 px-8 pt-10 pb-6 border-b border-gray-800">
         <div className="flex items-center gap-3 mb-1">
           <span className="text-4xl">🏋️</span>
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold tracking-tight text-white leading-tight">Bowflex Training</h1>
             <p className="text-gray-400 text-base">6-Week Dumbbell Challenge</p>
           </div>
+          <button
+            onClick={onOpenCalendar}
+            className="text-3xl active:scale-90 transition-all p-2"
+            aria-label="View progress calendar"
+          >
+            📅
+          </button>
         </div>
         <div className="mt-5">
           <div className="flex justify-between text-sm text-gray-400 mb-2">

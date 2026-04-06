@@ -27,3 +27,12 @@ html, body {
 
 button { touch-action: manipulation; }
 .num-display { font-variant-numeric: tabular-nums; }
+
+@keyframes kenburns {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.08) translate(-1%, 1%); }
+}
+.kenburns {
+  animation: kenburns 8s ease-in-out infinite alternate;
+  transform-origin: center center;
+}
