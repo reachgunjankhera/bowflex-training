@@ -8,7 +8,7 @@ export default function App() {
   const [view, setView] = useState('home')
   const [activeDay, setActiveDay] = useState(null)
 
-  const { logSet, markWorkoutComplete, isWorkoutComplete, getLastWeight, log } = useWorkoutLog()
+  const { logSet, markWorkoutComplete, isWorkoutComplete, getLastWeight, log, resetAll, resetWeek } = useWorkoutLog()
 
   function handleStartDay(dayData) {
     setActiveDay(dayData)
@@ -34,7 +34,7 @@ export default function App() {
         <p className="text-gray-600 text-base mb-12">Great work. Rest up and come back stronger.</p>
         <button
           onClick={() => { setView('home'); setActiveDay(null) }}
-          className="w-full max-w-sm py-5 bg-red-600 text-white text-lg font-bold rounded-2xl active:bg-red-700 active:scale-95 transition-all"
+          className="w-full max-w-sm py-5 bg-orange-500 text-white text-lg font-bold rounded-2xl active:bg-orange-600 active:scale-95 transition-all"
         >
           Back to Program
         </button>
@@ -49,6 +49,7 @@ export default function App() {
           onStartDay={handleStartDay}
           isWorkoutComplete={isWorkoutComplete}
           onOpenCalendar={() => setView('calendar')}
+          resetAll={resetAll}
         />
       )}
       {view === 'workout' && activeDay && (
@@ -65,6 +66,8 @@ export default function App() {
           isWorkoutComplete={isWorkoutComplete}
           log={log}
           onBack={() => setView('home')}
+          resetWeek={resetWeek}
+          resetAll={resetAll}
         />
       )}
     </div>

@@ -11,7 +11,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
   const [justLogged, setJustLogged] = useState(false)
   const [showDesc, setShowDesc] = useState(false)
   // Timer state
-  const [timerRunning, setTimerRunning] = useState(false)
+  const [timerRunning, setTimerRunning] = useState(true)
   const [timerElapsed, setTimerElapsed] = useState(0)   // for stopwatch (strength/bodyweight)
   const [countdownVal, setCountdownVal] = useState(0)   // for countdown (timed)
 
@@ -182,7 +182,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
           <span className="text-2xl leading-none">‹</span><span className="text-base">Back</span>
         </button>
         <div className="text-center">
-          <div className="text-red-500 font-bold text-xl italic">Week {dayData.week} · Day {dayData.day}</div>
+          <div className="text-orange-400 font-bold text-xl italic">Week {dayData.week} · Day {dayData.day}</div>
         </div>
         <div className="w-16" />
       </div>
@@ -198,7 +198,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
         {previewImg && (
           <img
             src={previewImg}
-            className="w-full h-full object-cover object-top kenburns"
+            className="w-full h-full object-contain kenburns"
             onError={e => { e.target.style.display = 'none' }}
           />
         )}
@@ -238,7 +238,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
           className="absolute bottom-10 left-3 bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 active:bg-black/80"
         >
           <span className="text-white/60 text-sm">{timerRunning ? '⏸' : '▶'}</span>
-          <span className={`text-2xl font-bold num-display ${isTimed ? 'text-red-400' : 'text-white'}`}>
+          <span className={`text-2xl font-bold num-display ${isTimed ? 'text-orange-400' : 'text-white'}`}>
             {timerLabel}
           </span>
         </button>
@@ -249,7 +249,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
             <div
               key={i}
               className={`w-3 h-3 rounded-full border-2 border-white/40 transition-all ${
-                i < setIdx ? 'bg-green-500 border-green-500' : i === setIdx ? 'bg-red-500 border-red-500' : 'bg-transparent'
+                i < setIdx ? 'bg-green-500 border-green-500' : i === setIdx ? 'bg-orange-500 border-orange-500' : 'bg-transparent'
               }`}
             />
           ))}
@@ -264,7 +264,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
         </div>
         <div className="flex-1 text-center py-3 border-r border-gray-800">
           <div className="text-xs text-gray-500 uppercase tracking-wide">Target</div>
-          <div className="text-2xl font-bold num-display text-red-400">{isTimed ? `${currentEx.reps}s` : `${currentEx.reps} reps`}</div>
+          <div className="text-2xl font-bold num-display text-orange-400">{isTimed ? `${currentEx.reps}s` : `${currentEx.reps} reps`}</div>
         </div>
         <div className="flex-1 text-center py-3">
           <div className="text-xs text-gray-500 uppercase tracking-wide">Rest</div>
@@ -274,20 +274,20 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
 
       {/* Inputs row — weight + reps for strength; nothing for timed */}
       {isStrength && (
-        <div className="flex gap-4 px-6 py-3 bg-gray-950 flex-shrink-0">
-          <div className="flex-1 bg-gray-900 rounded-2xl border border-gray-800 p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wide mb-2 text-center">Weight (lbs)</div>
+        <div className="flex gap-4 px-6 py-2 bg-gray-950 flex-shrink-0">
+          <div className="flex-1 bg-gray-900 rounded-2xl border border-gray-800 p-2">
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1 text-center">Weight (lbs)</div>
             <div className="flex items-center gap-2">
               <StepBtn label="−" onPress={() => setWeight(w => Math.max(5, Math.round((w - 2.5) * 2) / 2))} />
-              <div className="text-4xl font-bold text-center flex-1 num-display">{weight}</div>
+              <div className="text-2xl font-bold text-center flex-1 num-display">{weight}</div>
               <StepBtn label="+" onPress={() => setWeight(w => Math.round((w + 2.5) * 2) / 2)} />
             </div>
           </div>
-          <div className="flex-1 bg-gray-900 rounded-2xl border border-gray-800 p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wide mb-2 text-center">Reps Done</div>
+          <div className="flex-1 bg-gray-900 rounded-2xl border border-gray-800 p-2">
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1 text-center">Reps Done</div>
             <div className="flex items-center gap-2">
               <StepBtn label="−" onPress={() => setReps(r => Math.max(1, r - 1))} />
-              <div className="text-4xl font-bold text-center flex-1 num-display">{reps}</div>
+              <div className="text-2xl font-bold text-center flex-1 num-display">{reps}</div>
               <StepBtn label="+" onPress={() => setReps(r => r + 1)} />
             </div>
           </div>
@@ -296,12 +296,12 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
 
       {/* Body weight: reps stepper only */}
       {isBodyWeight && (
-        <div className="flex gap-4 px-6 py-3 bg-gray-950 flex-shrink-0">
-          <div className="flex-1 bg-gray-900 rounded-2xl border border-gray-800 p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wide mb-2 text-center">Reps Done</div>
+        <div className="flex gap-4 px-6 py-2 bg-gray-950 flex-shrink-0">
+          <div className="flex-1 bg-gray-900 rounded-2xl border border-gray-800 p-2">
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1 text-center">Reps Done</div>
             <div className="flex items-center gap-2">
               <StepBtn label="−" onPress={() => setReps(r => Math.max(1, r - 1))} />
-              <div className="text-4xl font-bold text-center flex-1 num-display">{reps}</div>
+              <div className="text-2xl font-bold text-center flex-1 num-display">{reps}</div>
               <StepBtn label="+" onPress={() => setReps(r => r + 1)} />
             </div>
           </div>
@@ -314,7 +314,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
           onClick={handleLogSet}
           disabled={justLogged}
           className={`w-full py-3 rounded-2xl text-base font-bold transition-all active:scale-95 ${
-            justLogged ? 'bg-green-600' : 'bg-red-600 active:bg-red-700'
+            justLogged ? 'bg-green-600' : 'bg-orange-500 active:bg-orange-600'
           }`}
         >
           {justLogged ? '✓ Logged!' : isLastSet && isLastExercise ? 'Finish Workout' : 'Log Set'}
@@ -326,7 +326,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
         <button
           onClick={() => { setExerciseIdx(i => Math.max(0, i - 1)); setSetIdx(0) }}
           disabled={exerciseIdx === 0}
-          className="flex items-center text-red-600 font-black text-3xl disabled:opacity-30 active:text-red-400 py-4 px-6 uppercase"
+          className="flex items-center text-orange-500 font-black text-3xl disabled:opacity-30 active:text-orange-400 py-4 px-6 uppercase"
         >
           ‹ PREV
         </button>
@@ -335,7 +335,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
             <div
               key={i}
               className={`rounded-full transition-all ${
-                i < exerciseIdx ? 'w-2 h-2 bg-green-500' : i === exerciseIdx ? 'w-3 h-3 bg-red-500' : 'w-2 h-2 bg-gray-700'
+                i < exerciseIdx ? 'w-2 h-2 bg-green-500' : i === exerciseIdx ? 'w-3 h-3 bg-orange-500' : 'w-2 h-2 bg-gray-700'
               }`}
             />
           ))}
@@ -343,7 +343,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
         <button
           onClick={() => { setExerciseIdx(i => Math.min(dayData.exercises.length - 1, i + 1)); setSetIdx(0) }}
           disabled={exerciseIdx === dayData.exercises.length - 1}
-          className="flex items-center text-red-600 font-black text-3xl disabled:opacity-30 active:text-red-400 py-4 px-6 uppercase"
+          className="flex items-center text-orange-500 font-black text-3xl disabled:opacity-30 active:text-orange-400 py-4 px-6 uppercase"
         >
           NEXT ›
         </button>
@@ -356,7 +356,7 @@ function StepBtn({ label, onPress }) {
   return (
     <button
       onClick={onPress}
-      className="w-14 h-14 rounded-xl bg-gray-800 text-white text-2xl font-bold flex items-center justify-center active:bg-gray-700 active:scale-95 transition-all flex-shrink-0"
+      className="w-10 h-10 rounded-xl bg-gray-800 text-white text-xl font-bold flex items-center justify-center active:bg-gray-700 active:scale-95 transition-all flex-shrink-0"
     >
       {label}
     </button>
@@ -375,7 +375,7 @@ function RestScreen({ seconds, total, nextExercise, onSkip }) {
       <div className="relative mb-8">
         <svg width="180" height="180" className="-rotate-90">
           <circle cx="90" cy="90" r={radius} fill="none" stroke="#1f2937" strokeWidth="10" />
-          <circle cx="90" cy="90" r={radius} fill="none" stroke="#DC2626" strokeWidth="10"
+          <circle cx="90" cy="90" r={radius} fill="none" stroke="#f97316" strokeWidth="10"
             strokeDasharray={`${strokeDash} ${circumference}`} strokeLinecap="round" className="transition-all duration-1000" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">

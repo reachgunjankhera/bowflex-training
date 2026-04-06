@@ -65,5 +65,17 @@ export function useWorkoutLog() {
     setLog({})
   }, [])
 
-  return { log, logSet, markWorkoutComplete, isWorkoutComplete, getLastWeight, resetAll }
+  const resetWeek = useCallback((weekNum) => {
+    setLog(prev => {
+      const next = { ...prev }
+      const startId = (weekNum - 1) * 3 + 1
+      for (let id = startId; id < startId + 3; id++) {
+        delete next[`workout_${id}`]
+      }
+      saveLog(next)
+      return next
+    })
+  }, [])
+
+  return { log, logSet, markWorkoutComplete, isWorkoutComplete, getLastWeight, resetAll, resetWeek }
 }
