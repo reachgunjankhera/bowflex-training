@@ -177,6 +177,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
   }
 
   const previewImg = exData?.preview ? `./exercises/previews/${exData.preview}` : null
+  const kbClass = `kb-${exerciseIdx % 4}`
 
   const timerLabel = isTimed ? formatCountdown(countdownVal) : formatStopwatch(timerElapsed)
 
@@ -204,11 +205,11 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
         {previewImg && (
           <img
             src={previewImg}
-            className="w-full h-full object-contain kenburns"
+            className={`w-full h-full object-cover ${kbClass}`}
             onError={e => { e.target.style.display = 'none' }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
         {/* Muscles chip — top-left */}
         {exData?.muscles && (
