@@ -173,11 +173,17 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
   }
 
   if (phase === 'rest') {
+    const nextExEntry = isLastSet ? dayData.exercises[exerciseIdx + 1] : currentEx
+    const nextExData = isLastSet ? getExercise(nextExEntry?.ex_id) : exData
     return (
       <RestScreen
         seconds={restRemaining}
         total={currentEx.rest}
-        nextExercise={isLastSet && !isLastExercise ? dayData.exercises[exerciseIdx + 1]?.name : null}
+        fromName={currentEx.name}
+        fromPreview={exData?.preview ? `./exercises/previews/${exData.preview}` : null}
+        toName={nextExEntry?.name ?? null}
+        toPreview={nextExData?.preview ? `./exercises/previews/${nextExData.preview}` : null}
+        toSetLabel={!isLastSet ? `Set ${setIdx + 2} of ${currentEx.sets}` : null}
         onSkip={skipRest}
       />
     )
@@ -363,34 +369,81 @@ function StepBtn({ label, onPress }) {
   )
 }
 
-function RestScreen({ seconds, total, nextExercise, onSkip }) {
+function RestScreen({ seconds, total, fromName, fromPreview, toName, toPreview, toSetLabel, onSkip }) {
   const pct = total > 0 ? (seconds / total) * 100 : 0
-  const radius = 70
+  const radius = 56
   const circumference = 2 * Math.PI * radius
   const strokeDash = (pct / 100) * circumference
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-gray-950 text-white px-8">
-      <div className="text-2xl font-bold text-gray-400 mb-8 uppercase tracking-widest">Rest</div>
-      <div className="relative mb-8">
-        <svg width="180" height="180" className="-rotate-90">
-          <circle cx="90" cy="90" r={radius} fill="none" stroke="#1f2937" strokeWidth="10" />
-          <circle cx="90" cy="90" r={radius} fill="none" stroke="#fb923c" strokeWidth="10"
-            strokeDasharray={`${strokeDash} ${circumference}`} strokeLinecap="round" className="transition-all duration-1000" />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-6xl font-bold num-display">{seconds}</span>
+    <div className="flex flex-col h-full bg-gray-950 text-white overflow-hidden">
+
+      {/* Label */}
+      <div className="text-center pt-6 pb-2">
+        <div className="text-lg font-bold text-gray-400 uppercase tracking-widest">Rest</div>
+      </div>
+
+      {/* Timer */}
+      <div className="flex justify-center mb-4">
+        <div className="relative">
+          <svg width="144" height="144" className="-rotate-90">
+            <circle cx="72" cy="72" r={radius} fill="none" stroke="#1f2937" strokeWidth="10" />
+            <circle cx="72" cy="72" r={radius} fill="none" stroke="#fb923c" strokeWidth="10"
+              strokeDasharray={`${strokeDash} ${circumference}`} strokeLinecap="round" className="transition-all duration-1000" />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-5xl font-bold num-display">{seconds}</span>
+          </div>
         </div>
       </div>
-      {nextExercise && (
-        <div className="text-center mb-8">
-          <div className="text-gray-500 text-sm mb-1">Next exercise</div>
-          <div className="text-white text-xl font-semibold">{nextExercise}</div>
+
+      {/* Exercise images: from | to */}
+      <div className="flex flex-1 gap-3 px-4 min-h-0">
+
+        {/* From */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="text-xs text-gray-500 uppercase tracking-wide text-center mb-1.5">Completed</div>
+          <div className="relative flex-1 rounded-2xl overflow-hidden bg-gray-900 min-h-0">
+            {fromPreview && (
+              <img src={fromPreview} className="w-full h-full object-cover opacity-60"
+                onError={e => { e.target.style.display = 'none' }} />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            <div className="absolute bottom-0 inset-x-0 p-3">
+              <div className="text-white text-sm font-semibold leading-tight">{fromName}</div>
+            </div>
+            {/* done check */}
+            <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold">✓</div>
+          </div>
         </div>
-      )}
-      <button onClick={onSkip} className="bg-gray-800 text-white px-10 py-4 rounded-2xl text-lg font-semibold active:bg-gray-700 active:scale-95 transition-all">
-        Skip Rest →
-      </button>
+
+        {/* To */}
+        {toName && (
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="text-xs text-gray-500 uppercase tracking-wide text-center mb-1.5">Up Next</div>
+            <div className="relative flex-1 rounded-2xl overflow-hidden bg-gray-900 min-h-0">
+              {toPreview && (
+                <img src={toPreview} className="w-full h-full object-cover"
+                  onError={e => { e.target.style.display = 'none' }} />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute bottom-0 inset-x-0 p-3">
+                <div className="text-white text-sm font-semibold leading-tight">{toName}</div>
+                {toSetLabel && <div className="text-orange-400 text-xs mt-0.5">{toSetLabel}</div>}
+              </div>
+              {/* next arrow */}
+              <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold">›</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Skip button */}
+      <div className="px-6 py-5">
+        <button onClick={onSkip} className="w-full bg-gray-800 text-white py-4 rounded-2xl text-lg font-semibold active:bg-gray-700 active:scale-95 transition-all">
+          Skip Rest →
+        </button>
+      </div>
     </div>
   )
 }
