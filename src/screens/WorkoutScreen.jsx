@@ -376,15 +376,11 @@ function RestScreen({ seconds, total, fromName, fromPreview, toName, toPreview, 
   const strokeDash = (pct / 100) * circumference
 
   return (
-    <div className="flex flex-col h-full bg-gray-950 text-white overflow-hidden">
+    <div className="flex flex-col h-full bg-gray-950 text-white">
 
-      {/* Label */}
-      <div className="text-center pt-6 pb-2">
-        <div className="text-lg font-bold text-gray-400 uppercase tracking-widest">Rest</div>
-      </div>
-
-      {/* Timer */}
-      <div className="flex justify-center mb-4">
+      {/* Label + Timer — fixed height */}
+      <div className="flex flex-col items-center pt-8 pb-4 flex-shrink-0">
+        <div className="text-lg font-bold text-gray-400 uppercase tracking-widest mb-4">Rest</div>
         <div className="relative">
           <svg width="144" height="144" className="-rotate-90">
             <circle cx="72" cy="72" r={radius} fill="none" stroke="#1f2937" strokeWidth="10" />
@@ -397,49 +393,47 @@ function RestScreen({ seconds, total, fromName, fromPreview, toName, toPreview, 
         </div>
       </div>
 
-      {/* Exercise images: from | to */}
-      <div className="flex flex-1 gap-3 px-4 min-h-0">
+      {/* Exercise images — fills all remaining space */}
+      <div className="flex gap-3 px-4 flex-1" style={{ minHeight: 0 }}>
 
-        {/* From */}
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="text-xs text-gray-500 uppercase tracking-wide text-center mb-1.5">Completed</div>
-          <div className="relative flex-1 rounded-2xl overflow-hidden bg-gray-900 min-h-0">
+        {/* Completed (left) */}
+        <div className="flex-1 flex flex-col gap-1">
+          <div className="text-xs text-gray-500 uppercase tracking-wide text-center flex-shrink-0">Completed</div>
+          <div className="flex-1 relative rounded-2xl overflow-hidden bg-gray-900">
             {fromPreview && (
-              <img src={fromPreview} className="w-full h-full object-cover opacity-60"
+              <img src={fromPreview} className="absolute inset-0 w-full h-full object-cover opacity-50"
                 onError={e => { e.target.style.display = 'none' }} />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold">✓</div>
             <div className="absolute bottom-0 inset-x-0 p-3">
               <div className="text-white text-sm font-semibold leading-tight">{fromName}</div>
             </div>
-            {/* done check */}
-            <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold">✓</div>
           </div>
         </div>
 
-        {/* To */}
+        {/* Up Next (right) */}
         {toName && (
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="text-xs text-gray-500 uppercase tracking-wide text-center mb-1.5">Up Next</div>
-            <div className="relative flex-1 rounded-2xl overflow-hidden bg-gray-900 min-h-0">
+          <div className="flex-1 flex flex-col gap-1">
+            <div className="text-xs text-gray-500 uppercase tracking-wide text-center flex-shrink-0">Up Next</div>
+            <div className="flex-1 relative rounded-2xl overflow-hidden bg-gray-900">
               {toPreview && (
-                <img src={toPreview} className="w-full h-full object-cover"
+                <img src={toPreview} className="absolute inset-0 w-full h-full object-cover"
                   onError={e => { e.target.style.display = 'none' }} />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold">›</div>
               <div className="absolute bottom-0 inset-x-0 p-3">
                 <div className="text-white text-sm font-semibold leading-tight">{toName}</div>
                 {toSetLabel && <div className="text-orange-400 text-xs mt-0.5">{toSetLabel}</div>}
               </div>
-              {/* next arrow */}
-              <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold">›</div>
             </div>
           </div>
         )}
       </div>
 
       {/* Skip button */}
-      <div className="px-6 py-5">
+      <div className="px-6 py-5 flex-shrink-0">
         <button onClick={onSkip} className="w-full bg-gray-800 text-white py-4 rounded-2xl text-lg font-semibold active:bg-gray-700 active:scale-95 transition-all">
           Skip Rest →
         </button>
