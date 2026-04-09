@@ -11,10 +11,9 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
   const [justLogged, setJustLogged] = useState(false)
   const [showDesc, setShowDesc] = useState(false)
   const [timerRunning, setTimerRunning] = useState(true)
-  const [timerElapsed, setTimerElapsed] = useState(0)
   const [countdownVal, setCountdownVal] = useState(0)
-  const [timedDone, setTimedDone] = useState(false)  // signals countdown hit 0
-  const [restDone, setRestDone] = useState(false)    // signals rest timer hit 0
+  const [countdownDone, setCountdownDone] = useState(false)  // signals countdown hit 0
+  const [restDone, setRestDone] = useState(false)            // signals rest timer hit 0
 
   const timerRef = useRef(null)
   const exerciseTimerRef = useRef(null)
@@ -27,55 +26,41 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
   const isLastExercise = exerciseIdx === dayData.exercises.length - 1
   const isLastSet = setIdx === currentEx.sets - 1
 
-  // Reset everything when exercise changes (including when Next/Prev is tapped)
+  // Duration: timed exercises count down from reps (seconds), all others from rest period
+  const exerciseDuration = isTimed ? currentEx.reps : currentEx.rest
+
+  // Reset everything when exercise changes
   useEffect(() => {
-    if (!isTimed && !isBodyWeight) setWeight(getLastWeight(currentEx.name))
+    if (isStrength) setWeight(getLastWeight(currentEx.name))
     setReps(currentEx.reps)
     setSetIdx(0)
     setShowDesc(false)
     setJustLogged(false)
-    setTimedDone(false)
+    setCountdownDone(false)
     setRestDone(false)
     setPhase('exercise')
     clearInterval(timerRef.current)
     clearInterval(exerciseTimerRef.current)
-    if (isTimed) {
-      setCountdownVal(currentEx.reps)
-    } else {
-      setTimerElapsed(0)
-    }
+    setCountdownVal(isTimed ? currentEx.reps : currentEx.rest)
     setTimerRunning(true)
   }, [exerciseIdx])
 
   // Reset countdown when set changes (after rest advances to next set)
   useEffect(() => {
-    if (!isTimed) return
-    setCountdownVal(currentEx.reps)
-    setTimedDone(false)
+    setCountdownVal(isTimed ? currentEx.reps : currentEx.rest)
+    setCountdownDone(false)
   }, [setIdx])
 
-  // Stopwatch for strength/bodyweight — exerciseIdx in deps ensures restart on Next
+  // Countdown for ALL exercises — exerciseIdx in deps ensures restart on Next
   useEffect(() => {
-    if (isTimed || phase !== 'exercise') return
-    clearInterval(exerciseTimerRef.current)
-    if (timerRunning) {
-      exerciseTimerRef.current = setInterval(() => {
-        setTimerElapsed(t => t + 1)
-      }, 1000)
-    }
-    return () => clearInterval(exerciseTimerRef.current)
-  }, [timerRunning, isTimed, phase, exerciseIdx])
-
-  // Countdown for timed exercises — exerciseIdx in deps ensures restart on Next
-  useEffect(() => {
-    if (!isTimed || phase !== 'exercise') return
+    if (phase !== 'exercise') return
     clearInterval(exerciseTimerRef.current)
     if (timerRunning) {
       exerciseTimerRef.current = setInterval(() => {
         setCountdownVal(c => {
           if (c <= 1) {
             clearInterval(exerciseTimerRef.current)
-            setTimedDone(true)
+            setCountdownDone(true)
             return 0
           }
           return c - 1
@@ -83,14 +68,14 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
       }, 1000)
     }
     return () => clearInterval(exerciseTimerRef.current)
-  }, [timerRunning, isTimed, phase, exerciseIdx])
+  }, [timerRunning, phase, exerciseIdx])
 
-  // Handle countdown completion — fresh state access via effect (fixes stale closure)
+  // Handle countdown completion — auto-log and advance
   useEffect(() => {
-    if (!timedDone) return
-    setTimedDone(false)
+    if (!countdownDone) return
+    setCountdownDone(false)
     setTimerRunning(false)
-    logSet(dayData.id, currentEx.name, setIdx, 0, currentEx.reps)
+    logSet(dayData.id, currentEx.name, setIdx, isTimed ? 0 : weight, reps)
     setJustLogged(true)
     setTimeout(() => {
       setJustLogged(false)
@@ -98,7 +83,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
       setRestRemaining(currentEx.rest)
       setPhase('rest')
     }, 600)
-  }, [timedDone])
+  }, [countdownDone])
 
   // Rest timer — only signals restDone (fixes stale closure in advanceAfterRest)
   useEffect(() => {
@@ -134,11 +119,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
       }
     } else {
       setSetIdx(s => s + 1)
-      if (isTimed) {
-        setCountdownVal(currentEx.reps)
-      } else {
-        setTimerElapsed(0)
-      }
+      setCountdownVal(isTimed ? currentEx.reps : currentEx.rest)
       setTimerRunning(true)
     }
     setPhase('exercise')
@@ -167,10 +148,6 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
     setTimerRunning(r => !r)
   }
 
-  function formatStopwatch(s) {
-    const m = Math.floor(s / 60)
-    return `${m}:${(s % 60).toString().padStart(2, '0')}`
-  }
 
   if (phase === 'rest') {
     const nextExEntry = isLastSet ? dayData.exercises[exerciseIdx + 1] : currentEx
@@ -191,7 +168,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
 
   const previewImg = exData?.preview ? `./exercises/previews/${exData.preview}` : null
   const kbClass = `kb-${exerciseIdx % 4}`
-  const timerLabel = isTimed ? `${countdownVal}s` : formatStopwatch(timerElapsed)
+  const timerLabel = `${countdownVal}s`
 
   return (
     <div className="flex flex-col h-full bg-gray-950 text-white overflow-hidden">
@@ -268,7 +245,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
             onClick={toggleTimer}
             className="absolute inset-x-0 bottom-12 flex flex-col items-center gap-1"
           >
-            <span className={`text-7xl font-black num-display drop-shadow-lg ${isTimed ? 'text-orange-400' : 'text-white/90'}`}>
+            <span className="text-7xl font-black num-display drop-shadow-lg text-orange-400">
               {timerLabel}
             </span>
             <span className="text-white/40 text-xs mt-1">{timerRunning ? '⏸ tap to pause' : '▶ tap to resume'}</span>
@@ -307,6 +284,7 @@ export default function WorkoutScreen({ dayData, onBack, onComplete, logSet, get
         <div className="flex-1 text-center py-3 border-r border-gray-800">
           <div className="text-xs text-gray-500 uppercase tracking-wide">Target</div>
           <div className="text-2xl font-bold num-display text-orange-400">{isTimed ? `${currentEx.reps}s` : `${currentEx.reps} reps`}</div>
+
         </div>
         <div className="flex-1 text-center py-3">
           <div className="text-xs text-gray-500 uppercase tracking-wide">Rest</div>
